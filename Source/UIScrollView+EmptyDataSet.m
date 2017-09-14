@@ -735,7 +735,13 @@ Class dzn_baseClassToSwizzleForTarget(id target)
 
 - (void)didMoveToSuperview
 {
-    self.frame = self.superview.bounds;
+    CGFloat y = CGRectGetMinY(self.superview.bounds);
+    for (UIView *view in self.superview.subviews) {
+        if ([view isKindOfClass:[UIRefreshControl class]]) {
+            y += CGRectGetHeight(view.frame);
+        }
+    }
+    self.frame = CGRectMake(CGRectGetMinX(self.superview.bounds), y, CGRectGetWidth(self.superview.bounds), CGRectGetHeight(self.superview.bounds));
     
     void(^fadeInBlock)(void) = ^{_contentView.alpha = 1.0;};
     
