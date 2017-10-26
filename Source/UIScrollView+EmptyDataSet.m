@@ -736,11 +736,24 @@ Class dzn_baseClassToSwizzleForTarget(id target)
 - (void)didMoveToSuperview
 {
     CGFloat y = CGRectGetMinY(self.superview.bounds);
-    for (UIView *view in self.superview.subviews) {
-        if ([view isKindOfClass:[UIRefreshControl class]]) {
-            y += CGRectGetHeight(view.frame);
+
+    CGFloat refreshControlY = 0;
+    if (@available(iOS 10.0, *)) {
+        if ([self.superview isKindOfClass:[UIScrollView class]]) {
+            UIScrollView *scrollView = (UIScrollView *)self.superview;
+            if (scrollView.refreshControl) {
+                refreshControlY = CGRectGetHeight(scrollView.refreshControl.frame);
+            }
+        }
+    } else {
+        for (UIView *view in self.superview.subviews) {
+            if ([view isKindOfClass:[UIRefreshControl class]]) {
+                refreshControlY = CGRectGetHeight(view.frame);
+            }
         }
     }
+
+    y += refreshControlY;
     self.frame = CGRectMake(CGRectGetMinX(self.superview.bounds), y, CGRectGetWidth(self.superview.bounds), CGRectGetHeight(self.superview.bounds));
     
     void(^fadeInBlock)(void) = ^{_contentView.alpha = 1.0;};
